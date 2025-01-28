@@ -12,9 +12,9 @@ func main() {
 
 	r.POST("/manga", handlers.CreateManga)
 	r.GET("/mangas", handlers.GetMangas)
-	r.GET("/manga", handlers.GetManga)
-	r.PUT("/manga", handlers.UpdateManga)
-	r.DELETE("/manga", handlers.DeleteManga)
+	r.GET("/manga/:id", handlers.GetManga)
+	r.PUT("/manga/:id", handlers.UpdateManga)
+	r.DELETE("/manga/:id", handlers.DeleteManga)
 
 	r.Run(":8080")
 

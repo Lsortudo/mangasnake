@@ -21,7 +21,7 @@ func InitDB() {
 		log.Fatal("Failed to connect to Database:", err)
 	}
 
-	dsn := os.Getenv("DB_URL")
+	dsn := os.Getenv("DATABASE_URL")
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to Database:", err) // duplicaod a cima, mudar dps pra um arquivo de handlers/errors.go pra lidar com msgs
@@ -49,6 +49,7 @@ func GetManga(c *gin.Context) {
 		model.ResponseJSON(c, http.StatusNotFound, "Manga not found :(", nil)
 		return
 	}
+	model.ResponseJSON(c, http.StatusOK, "Manga retrieved successfully", manga)
 }
 
 func GetMangas(c *gin.Context) {
