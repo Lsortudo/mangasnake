@@ -43,7 +43,7 @@ func CreateManga(c *gin.Context) {
 	model.ResponseJSON(c, http.StatusCreated, "Manga created successfully!!!", manga)
 }
 
-func GetMangas(c *gin.Context) {
+func GetManga(c *gin.Context) {
 	var manga model.Manga
 	if err := DB.First(&manga, c.Param("id")).Error; err != nil {
 		model.ResponseJSON(c, http.StatusNotFound, "Manga not found :(", nil)
@@ -51,7 +51,7 @@ func GetMangas(c *gin.Context) {
 	}
 }
 
-func GetMangass(c *gin.Context) {
+func GetMangas(c *gin.Context) {
 	var mangas []model.Manga
 	DB.Find(&mangas)
 	model.ResponseJSON(c, http.StatusOK, "Mangas retrieved successfully", mangas)
