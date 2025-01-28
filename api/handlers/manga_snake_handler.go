@@ -15,7 +15,7 @@ import (
 
 var DB *gorm.DB
 
-func initDB() {
+func InitDB() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Failed to connect to Database:", err)
