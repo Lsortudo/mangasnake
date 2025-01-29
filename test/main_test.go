@@ -129,3 +129,32 @@ func TestUpdateManga(t *testing.T) {
 
 	}
 }
+
+func TestDeleteManga(t *testing.T) {
+	setupTestDB()
+	manga := addManga()
+	router := gin.Default()
+	router.GET("/manga:id", handlers.DeleteManga)
+
+	req, _ := http.NewRequest("DELETE", "/manga/"+strconv.Itoa(int(manga.ID)), nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if status := w.Code; status != http.StatusOK {
+		t.Errorf("Expected status %d, got %d", http.StatusOK, status)
+	}
+
+	var response model.JsonResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	if response.Message != "Manga successfully deleted" {
+		t.Errorf("Expected delete message 'Manga successfully deleted', got %v", response.Message)
+	}
+
+	var deletedManga model.Manga
+	result := handlers.DB.First(&deletedManga, manga.ID)
+	if result.Error == nil {
+		t.Errorf("Expected manga to be deleted, but it still exists")
+
+	}
+}
