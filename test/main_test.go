@@ -84,7 +84,7 @@ func TestGetManga(t *testing.T) {
 	setupTestDB()
 	manga := addManga()
 	router := gin.Default()
-	router.GET("/manga:id", handlers.GetManga)
+	router.GET("/manga/:id", handlers.GetManga)
 
 	req, _ := http.NewRequest("GET", "/manga/"+strconv.Itoa(int(manga.ID)), nil)
 	w := httptest.NewRecorder()
@@ -106,7 +106,7 @@ func TestUpdateManga(t *testing.T) {
 	setupTestDB()
 	manga := addManga()
 	router := gin.Default()
-	router.GET("/manga:id", handlers.UpdateManga)
+	router.PUT("/manga/:id", handlers.UpdateManga)
 
 	updateManga := model.Manga{
 		Title: "Teste manga update", Author: "LeoSan", Year: 2026,
@@ -134,7 +134,7 @@ func TestDeleteManga(t *testing.T) {
 	setupTestDB()
 	manga := addManga()
 	router := gin.Default()
-	router.GET("/manga:id", handlers.DeleteManga)
+	router.DELETE("/manga/:id", handlers.DeleteManga)
 
 	req, _ := http.NewRequest("DELETE", "/manga/"+strconv.Itoa(int(manga.ID)), nil)
 	w := httptest.NewRecorder()
