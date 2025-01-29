@@ -7,6 +7,7 @@ import (
 	"go_mangasnake_api/api/model"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -76,5 +77,27 @@ func TestGetMangas(t *testing.T) {
 
 	if response.Data == nil {
 		t.Errorf("Expected non-empty mangas list")
+	}
+}
+
+func TestGetManga(t *testing.T) {
+	setupTestDB()
+	manga := addManga()
+	router := gin.Default()
+	router.GET("/manga:id", handlers.GetManga)
+
+	req, _ := http.NewRequest("GET", "/manga/"+strconv.Itoa(int(manga.ID)), nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if status := w.Code; status != http.StatusOK {
+		t.Errorf("Expected status %d, got %d", http.StatusOK, status)
+	}
+
+	var response model.JsonResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	if response.Data == nil || response.Data.(map[string]interface{})["id"] != float64(manga.ID) {
+		t.Errorf("Expected manga ID %d, got nil or wrong ID", manga.ID)
 	}
 }
