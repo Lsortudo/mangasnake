@@ -56,3 +56,25 @@ func TestCreateManga(t *testing.T) {
 		t.Errorf("Expected manga data, got nil")
 	}
 }
+
+func TestGetMangas(t *testing.T) {
+	setupTestDB()
+	addManga()
+	router := gin.Default()
+
+	router.GET("/mangas", handlers.GetMangas)
+	req, _ := http.NewRequest("GET", "/mangas", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if status := w.Code; status != http.StatusOK {
+		t.Errorf("Expected status %d, got %d", http.StatusOK, status)
+	}
+
+	var response model.JsonResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	if response.Data == nil {
+		t.Errorf("Expected non-empty mangas list")
+	}
+}
