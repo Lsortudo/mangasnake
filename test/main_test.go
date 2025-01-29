@@ -101,3 +101,31 @@ func TestGetManga(t *testing.T) {
 		t.Errorf("Expected manga ID %d, got nil or wrong ID", manga.ID)
 	}
 }
+
+func TestUpdateManga(t *testing.T) {
+	setupTestDB()
+	manga := addManga()
+	router := gin.Default()
+	router.GET("/manga:id", handlers.UpdateManga)
+
+	updateManga := model.Manga{
+		Title: "Teste manga update", Author: "LeoSan", Year: 2026,
+	}
+	jsonValue, _ := json.Marshal(updateManga)
+
+	req, _ := http.NewRequest("PUT", "/manga/"+strconv.Itoa(int(manga.ID)), bytes.NewBuffer(jsonValue))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if status := w.Code; status != http.StatusOK {
+		t.Errorf("Expected status %d, got %d", http.StatusOK, status)
+	}
+
+	var response model.JsonResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	if response.Data == nil || response.Data.(map[string]interface{})["title"] != "Teste manga update" {
+		t.Errorf("Expected updated manga title 'Teste manga update', got %v", response.Data)
+
+	}
+}
