@@ -15,6 +15,11 @@ type JsonResponse struct {
 	Data    any    `json:"data"`
 }
 
+type LoginRequest struct {
+	Username string
+	Password string
+}
+
 func ResponseJSON(c *gin.Context, status int, message string, data any) {
 	response := JsonResponse{
 		Status:  status,
