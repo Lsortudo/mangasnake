@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"go_mangasnake_api/api/handlers"
+	"go_mangasnake_api/api/middleware"
 	"go_mangasnake_api/api/model"
 	"net/http"
 	"net/http/httptest"
@@ -39,8 +40,11 @@ func addManga() model.Manga {
 func TestCreateManga(t *testing.T) {
 	setupTestDB()
 	router := gin.Default()
+	protected := router.Group("/", middleware.JWTAuthMiddleware())
 
-	router.POST("/manga", handlers.CreateManga)
+	protected.POST("/manga", handlers.CreateManga)
+
+	token := generateValidToken()
 
 	manga := model.Manga{
 		Title: "Manga Func Create", Author: "LeoS", Year: 2025,
@@ -48,6 +52,7 @@ func TestCreateManga(t *testing.T) {
 
 	jsonValue, _ := json.Marshal(manga)
 	req, _ := http.NewRequest("POST", "/manga", bytes.NewBuffer(jsonValue))
+	req.Header.Set("Authorization", token)
 
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
@@ -67,9 +72,14 @@ func TestGetMangas(t *testing.T) {
 	setupTestDB()
 	addManga()
 	router := gin.Default()
+	protected := router.Group("/", middleware.JWTAuthMiddleware())
 
-	router.GET("/mangas", handlers.GetMangas)
+	token := generateValidToken()
+
+	protected.GET("/mangas", handlers.GetMangas)
 	req, _ := http.NewRequest("GET", "/mangas", nil)
+	req.Header.Set("Authorization", token)
+
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -89,9 +99,14 @@ func TestGetManga(t *testing.T) {
 	setupTestDB()
 	manga := addManga()
 	router := gin.Default()
-	router.GET("/manga/:id", handlers.GetManga)
+	protected := router.Group("/", middleware.JWTAuthMiddleware())
+	protected.GET("/manga/:id", handlers.GetManga)
+
+	token := generateValidToken()
 
 	req, _ := http.NewRequest("GET", "/manga/"+strconv.Itoa(int(manga.ID)), nil)
+	req.Header.Set("Authorization", token)
+
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -111,7 +126,10 @@ func TestUpdateManga(t *testing.T) {
 	setupTestDB()
 	manga := addManga()
 	router := gin.Default()
-	router.PUT("/manga/:id", handlers.UpdateManga)
+	protected := router.Group("/", middleware.JWTAuthMiddleware())
+	protected.PUT("/manga/:id", handlers.UpdateManga)
+
+	token := generateValidToken()
 
 	updateManga := model.Manga{
 		Title: "Teste manga update", Author: "LeoSan", Year: 2026,
@@ -119,6 +137,8 @@ func TestUpdateManga(t *testing.T) {
 	jsonValue, _ := json.Marshal(updateManga)
 
 	req, _ := http.NewRequest("PUT", "/manga/"+strconv.Itoa(int(manga.ID)), bytes.NewBuffer(jsonValue))
+	req.Header.Set("Authorization", token)
+
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
@@ -139,9 +159,14 @@ func TestDeleteManga(t *testing.T) {
 	setupTestDB()
 	manga := addManga()
 	router := gin.Default()
-	router.DELETE("/manga/:id", handlers.DeleteManga)
+	protected := router.Group("/", middleware.JWTAuthMiddleware())
+	protected.DELETE("/manga/:id", handlers.DeleteManga)
+
+	token := generateValidToken()
 
 	req, _ := http.NewRequest("DELETE", "/manga/"+strconv.Itoa(int(manga.ID)), nil)
+	req.Header.Set("Authorization", token)
+
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
