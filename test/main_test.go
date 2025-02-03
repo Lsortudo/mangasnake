@@ -7,13 +7,18 @@ import (
 	"go_mangasnake_api/api/model"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
+
+var jwtSecret = []byte(os.Getenv("SECRET_TOKEN"))
 
 func setupTestDB() {
 	var err error
@@ -156,5 +161,41 @@ func TestDeleteManga(t *testing.T) {
 	if result.Error == nil {
 		t.Errorf("Expected manga to be deleted, but it still exists")
 
+	}
+}
+
+func generateValidToken() string {
+	expirationTime := time.Now().Add(15 * time.Minute)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"exp": expirationTime.Unix(),
+	})
+	tokenString, _ := token.SignedString(jwtSecret)
+	return tokenString
+}
+
+func TestGenerateJWT(t *testing.T) {
+	router := gin.Default()
+	router.POST("/token", handlers.GenerateJWT)
+
+	loginRequest := map[string]string{
+		"username": "admin",
+		"password": "password",
+	}
+
+	jsonValue, _ := json.Marshal(loginRequest)
+	req, _ := http.NewRequest("POST", "/token", bytes.NewBuffer(jsonValue))
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if status := w.Code; status != http.StatusOK {
+		t.Errorf("Expected status %d, got %d", http.StatusOK, status)
+	}
+
+	var response model.JsonResponse
+	json.NewDecoder(w.Body).Decode(&response)
+
+	if response.Data == nil || response.Data.(map[string]interface{})["token"] == "" {
+		t.Errorf("Expected token in response, got nil or empty")
 	}
 }
