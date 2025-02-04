@@ -8,11 +8,11 @@ import (
 
 type User struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Password  password  `json:"password"`
-	CreatedAt time.Time `json:"created_at"`
-	IsActive  bool      `json:"is_active"`
+	Username  string    `json:"username" gorm:"unique;not null"`
+	Email     string    `json:"email" gorm:"unique;not null"`
+	Password  password  `json:"password" gorm:"not null"`
+	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+	IsActive  bool      `json:"is_active"` // gorm:"default:true" taalvez?
 	// definir aqui a lista de favs, ou talvez no manga sla To be Defined ainda
 }
 
