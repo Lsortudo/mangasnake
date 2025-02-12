@@ -10,12 +10,34 @@ type User struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Username  string    `json:"username" gorm:"unique;not null"`
 	Email     string    `json:"email" gorm:"unique;not null"`
-	Password  password  `json:"password" gorm:"not null"`
+	Password  string    `json:"password" gorm:"not null"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	IsActive  bool      `json:"is_active"` // gorm:"default:true" taalvez?
-	// definir aqui a lista de favs, ou talvez no manga sla To be Defined ainda
+	Lists     []List    `json:"lists" gorm:"foreignKey:UserID"`
 }
 
+func (u *User) HashPassword() error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	u.Password = string(hash)
+	return nil
+}
+
+func (u *User) CheckPassword(password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)) == nil
+}
+
+type List struct {
+	ID     uint    `json:"id" gorm:"primaryKey"`
+	Name   string  `json:"name"`
+	UserID uint    `json:"user_id"`
+	User   User    `json:"user" gorm:"foreignKey:UserID"`
+	Mangas []Manga `json:"mangas" gorm:"many2many:list_mangas"`
+}
+
+/*
 type password struct {
 	text *string
 	hash []byte
@@ -35,3 +57,4 @@ func (p *password) Set(text string) error {
 func (p *password) Compare(text string) error {
 	return bcrypt.CompareHashAndPassword(p.hash, []byte(text))
 }
+*/

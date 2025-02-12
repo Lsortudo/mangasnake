@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -10,30 +9,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
 var jwtSecret = []byte(os.Getenv("SECRET_TOKEN"))
-
-func InitDB() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Failed to connect to Database:", err)
-	}
-
-	dsn := os.Getenv("DATABASE_URL")
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("Failed to connect to Database:", err) // duplicaod a cima, mudar dps pra um arquivo de handlers/errors.go pra lidar com msgs
-	}
-	if err := DB.AutoMigrate(&model.Manga{}); err != nil {
-
-		log.Fatal("failed to migrate schema:", err)
-	}
-}
 
 func CreateManga(c *gin.Context) {
 	var manga model.Manga

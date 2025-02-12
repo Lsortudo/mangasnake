@@ -13,7 +13,8 @@ func main() {
 
 	// rotas publicas
 	r.POST("/token", handlers.GenerateJWT)
-
+	r.POST("/register", handlers.RegisterUser)
+	r.POST("/login", handlers.LoginUser)
 	// rotas protegidas
 	protected := r.Group("/", middleware.JWTAuthMiddleware())
 	{
@@ -22,6 +23,7 @@ func main() {
 		protected.GET("/manga/:id", handlers.GetManga)
 		protected.PUT("/manga/:id", handlers.UpdateManga)
 		protected.DELETE("/manga/:id", handlers.DeleteManga)
+		protected.DELETE("/user/:id", handlers.DeleteUser)
 
 	}
 

@@ -5,6 +5,7 @@ import (
 	"go_mangasnake_api/api/model"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -36,4 +37,13 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		// Token valido, proximo handler
 		ctx.Next()
 	}
+}
+
+func GenerateJWTU(userID uint) (string, error) {
+	expirationTime := time.Now().Add(15 * time.Minute)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": userID,
+		"exp":     expirationTime.Unix(),
+	})
+	return token.SignedString(jwtSecret)
 }
