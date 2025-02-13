@@ -29,14 +29,6 @@ func (u *User) CheckPassword(password string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password)) == nil
 }
 
-type List struct {
-	ID     uint    `json:"id" gorm:"primaryKey"`
-	Name   string  `json:"name"`
-	UserID uint    `json:"user_id"`
-	User   User    `json:"user" gorm:"foreignKey:UserID"`
-	Mangas []Manga `json:"mangas" gorm:"many2many:list_mangas"`
-}
-
 /*
 type password struct {
 	text *string

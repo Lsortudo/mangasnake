@@ -12,7 +12,7 @@ func main() {
 	r := gin.Default()
 
 	// rotas publicas
-	r.POST("/token", handlers.GenerateJWT)
+	r.POST("/token", middleware.GenerateJWT)
 	r.POST("/register", handlers.RegisterUser)
 	r.POST("/login", handlers.LoginUser)
 	// rotas protegidas

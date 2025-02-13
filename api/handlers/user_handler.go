@@ -38,23 +38,24 @@ func RegisterUser(c *gin.Context) {
 }
 
 func LoginUser(c *gin.Context) {
-	var request struct {
+	var loginRequest model.LoginRequest
+	/*var request struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
-	}
+	}*/
 
-	if err := c.ShouldBindJSON(&request); err != nil {
+	if err := c.ShouldBindJSON(&loginRequest); err != nil {
 		model.ResponseJSON(c, http.StatusBadRequest, "Invalid input", nil)
 		return
 	}
 
 	var user model.User
-	if err := DB.Where("email = ?", request.Email).First(&user).Error; err != nil {
+	if err := DB.Where("email = ?", loginRequest.Email).First(&user).Error; err != nil {
 		model.ResponseJSON(c, http.StatusUnauthorized, "Invalid email or password", nil)
 		return
 	}
 
-	if !user.CheckPassword(request.Password) {
+	if !user.CheckPassword(loginRequest.Password) {
 		model.ResponseJSON(c, http.StatusUnauthorized, "Invalid email or password", nil)
 		return
 	}

@@ -200,7 +200,7 @@ func generateValidToken() string {
 
 func TestGenerateJWT(t *testing.T) {
 	router := gin.Default()
-	router.POST("/token", handlers.GenerateJWT)
+	router.POST("/token", middleware.GenerateJWT)
 
 	loginRequest := map[string]string{
 		"username": "admin",
