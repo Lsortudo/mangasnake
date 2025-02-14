@@ -3,9 +3,9 @@ package middleware
 import (
 	"fmt"
 	"go_mangasnake_api/api/model"
+	"go_mangasnake_api/api/utils"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -39,28 +39,11 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func GenerateJWTU(userID uint) (string, error) {
-	expirationTime := time.Now().Add(15 * time.Minute)
-	claims := jwt.MapClaims{
-		"exp": expirationTime.Unix(),
-	}
-
-	if userID == 0 {
-		// Se o ID for 0, consideramos como admin
-		claims["admin"] = true
-	} else {
-		claims["user_id"] = userID
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
-}
-
 func AdminAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString := ctx.GetHeader("Authorization")
 		if tokenString == "" {
-			model.ResponseJSON(ctx, http.StatusUnauthorized, "Authorization token required", nil)
+			utils.RespondWithError(ctx, http.StatusUnauthorized, "Authorization token required", nil)
 			ctx.Abort()
 			return
 		}
@@ -73,17 +56,23 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || token == nil {
-			model.ResponseJSON(ctx, http.StatusUnauthorized, "Invalid token", nil)
+			utils.RespondWithError(ctx, http.StatusUnauthorized, "Invalid token", nil)
+			ctx.Abort()
+			return
+		}
+
+		// Verifica se o token expirou
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok || !token.Valid {
+			utils.RespondWithError(ctx, http.StatusUnauthorized, "Token expired or invalid", nil)
 			ctx.Abort()
 			return
 		}
 
 		// Verifica se o token contém a chave "admin"
-		claims, ok := token.Claims.(jwt.MapClaims)
 		isAdmin, hasAdminKey := claims["admin"].(bool)
-
-		if !ok || !hasAdminKey || !isAdmin {
-			model.ResponseJSON(ctx, http.StatusForbidden, "Access denied", nil)
+		if !hasAdminKey || !isAdmin {
+			utils.RespondWithError(ctx, http.StatusForbidden, "Access denied", nil)
 			ctx.Abort()
 			return
 		}
