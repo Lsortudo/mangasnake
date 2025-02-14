@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"go_mangasnake_api/api/database"
 	"go_mangasnake_api/api/middleware"
 	"go_mangasnake_api/api/model"
 	"net/http"
@@ -18,7 +19,7 @@ func RegisterUser(c *gin.Context) {
 	}
 	// Verificar se o e-mail já está cadastrado
 	var existingUser model.User
-	if err := DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
+	if err := database.DB.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
 		model.ResponseJSON(c, http.StatusConflict, "Email already registered", nil)
 		return
 	}
@@ -27,7 +28,7 @@ func RegisterUser(c *gin.Context) {
 		model.ResponseJSON(c, http.StatusInternalServerError, "Could not hash password", nil)
 		return
 	}
-	if err := DB.Create(&user).Error; err != nil {
+	if err := database.DB.Create(&user).Error; err != nil {
 		//c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})
 		model.ResponseJSON(c, http.StatusBadRequest, "Could not create user", nil)
 		return
@@ -50,7 +51,7 @@ func LoginUser(c *gin.Context) {
 	}
 
 	var user model.User
-	if err := DB.Where("email = ?", loginRequest.Email).First(&user).Error; err != nil {
+	if err := database.DB.Where("email = ?", loginRequest.Email).First(&user).Error; err != nil {
 		model.ResponseJSON(c, http.StatusUnauthorized, "Invalid email or password", nil)
 		return
 	}
@@ -73,13 +74,13 @@ func DeleteUser(c *gin.Context) {
 
 	// Verifica se o usuário existe
 	var user model.User
-	if err := DB.First(&user, userID).Error; err != nil {
+	if err := database.DB.First(&user, userID).Error; err != nil {
 		model.ResponseJSON(c, http.StatusNotFound, "User not found", nil)
 		return
 	}
 
 	// Remove o usuário
-	if err := DB.Delete(&user).Error; err != nil {
+	if err := database.DB.Delete(&user).Error; err != nil {
 		model.ResponseJSON(c, http.StatusInternalServerError, "Could not delete user", nil)
 		return
 	}

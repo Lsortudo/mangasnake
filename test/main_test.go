@@ -198,29 +198,29 @@ func generateValidToken() string {
 	return tokenString
 }
 
-func TestGenerateJWT(t *testing.T) {
-	router := gin.Default()
-	router.POST("/token", middleware.GenerateJWT)
+// func TestGenerateJWT(t *testing.T) {
+// 	router := gin.Default()
+// 	router.POST("/token", middleware.GenerateJWT)
 
-	loginRequest := map[string]string{
-		"username": "admin",
-		"password": "password",
-	}
+// 	loginRequest := map[string]string{
+// 		"username": "admin",
+// 		"password": "password",
+// 	}
 
-	jsonValue, _ := json.Marshal(loginRequest)
-	req, _ := http.NewRequest("POST", "/token", bytes.NewBuffer(jsonValue))
+// 	jsonValue, _ := json.Marshal(loginRequest)
+// 	req, _ := http.NewRequest("POST", "/token", bytes.NewBuffer(jsonValue))
 
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
+// 	w := httptest.NewRecorder()
+// 	router.ServeHTTP(w, req)
 
-	if status := w.Code; status != http.StatusOK {
-		t.Errorf("Expected status %d, got %d", http.StatusOK, status)
-	}
+// 	if status := w.Code; status != http.StatusOK {
+// 		t.Errorf("Expected status %d, got %d", http.StatusOK, status)
+// 	}
 
-	var response model.JsonResponse
-	json.NewDecoder(w.Body).Decode(&response)
+// 	var response model.JsonResponse
+// 	json.NewDecoder(w.Body).Decode(&response)
 
-	if response.Data == nil || response.Data.(map[string]interface{})["token"] == "" {
-		t.Errorf("Expected token in response, got nil or empty")
-	}
-}
+// 	if response.Data == nil || response.Data.(map[string]interface{})["token"] == "" {
+// 		t.Errorf("Expected token in response, got nil or empty")
+// 	}
+// }

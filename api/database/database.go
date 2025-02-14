@@ -1,4 +1,4 @@
-package handlers
+package database
 
 import (
 	"go_mangasnake_api/api/model"
