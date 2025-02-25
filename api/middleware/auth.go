@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"fmt"
-	"go_mangasnake_api/api/model"
 	"go_mangasnake_api/api/utils"
 	"net/http"
 	"os"
@@ -17,7 +16,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString := ctx.GetHeader("Authorization")
 		if tokenString == "" {
-			model.ResponseJSON(ctx, http.StatusUnauthorized, "Authorization token required", nil)
+			utils.ResponseJSON(ctx, http.StatusUnauthorized, "Authorization token required", nil)
 			ctx.Abort()
 			return
 		}
@@ -30,7 +29,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil {
-			model.ResponseJSON(ctx, http.StatusUnauthorized, "invalid token", nil)
+			utils.ResponseJSON(ctx, http.StatusUnauthorized, "invalid token", nil)
 			ctx.Abort()
 			return
 		}
@@ -43,7 +42,7 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		tokenString := ctx.GetHeader("Authorization")
 		if tokenString == "" {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, "Authorization token required", nil)
+			utils.ResponseJSON(ctx, http.StatusUnauthorized, "Authorization token required", nil)
 			ctx.Abort()
 			return
 		}
@@ -56,7 +55,7 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 		})
 
 		if err != nil || token == nil {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, "Invalid token", nil)
+			utils.ResponseJSON(ctx, http.StatusUnauthorized, "Invalid token", nil)
 			ctx.Abort()
 			return
 		}
@@ -64,7 +63,7 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 		// Verifica se o token expirou
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, "Token expired or invalid", nil)
+			utils.ResponseJSON(ctx, http.StatusUnauthorized, "Token expired or invalid", nil)
 			ctx.Abort()
 			return
 		}
@@ -72,7 +71,7 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 		// Verifica se o token contém a chave "admin"
 		isAdmin, hasAdminKey := claims["admin"].(bool)
 		if !hasAdminKey || !isAdmin {
-			utils.RespondWithError(ctx, http.StatusForbidden, "Access denied", nil)
+			utils.ResponseJSON(ctx, http.StatusForbidden, "Access denied", nil)
 			ctx.Abort()
 			return
 		}
@@ -84,11 +83,11 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 // func GenerateJWT(c *gin.Context) {
 // 	var loginRequest model.LoginRequest
 // 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
-// 		model.ResponseJSON(c, http.StatusBadRequest, "Invalid request payload", nil)
+// 		handlers.ResponseJSON(c, http.StatusBadRequest, "Invalid request payload", nil)
 // 		return
 // 	}
 // 	if loginRequest.Email != "admin@teste.com" || loginRequest.Password != "adminop1" {
-// 		model.ResponseJSON(c, http.StatusUnauthorized, "Invalid credentials", nil)
+// 		handlers.ResponseJSON(c, http.StatusUnauthorized, "Invalid credentials", nil)
 // 		return
 // 	}
 // 	expirationTime := time.Now().Add(15 * time.Minute)
@@ -98,10 +97,10 @@ func AdminAuthMiddleware() gin.HandlerFunc {
 // 	// Sign the token
 // 	tokenString, err := token.SignedString(jwtSecret)
 // 	if err != nil {
-// 		model.ResponseJSON(c, http.StatusInternalServerError, "Could not generate token", nil)
+// 		handlers.ResponseJSON(c, http.StatusInternalServerError, "Could not generate token", nil)
 // 		return
 // 	}
-// 	model.ResponseJSON(c, http.StatusOK, "Token generated successfully", gin.H{"token": tokenString})
+// 	handlers.ResponseJSON(c, http.StatusOK, "Token generated successfully", gin.H{"token": tokenString})
 // }
 
 // colocar depois apenas uma funcao GenerateJWT, e pra generateJWT padrao que lista mangas fazer de algum jeito que só sirva com o login admin admin
